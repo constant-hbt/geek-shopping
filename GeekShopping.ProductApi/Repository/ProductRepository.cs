@@ -39,7 +39,7 @@ namespace GeekShopping.ProductApi.Repository
         public async Task<ProductVO> Update(ProductVO productVO)
         {
             var product = _mapper.Map<Product>(productVO);
-            await _repository.Products.AddAsync(product);
+            _repository.Products.Update(product);
             await _repository.SaveChangesAsync();
             return _mapper.Map<ProductVO>(product);
         }
