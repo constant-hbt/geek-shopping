@@ -1,6 +1,7 @@
 ﻿using GeekShopping.Web.Models;
 using GeekShopping.Web.Services.IServices;
 using GeekShopping.Web.Utils;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GeekShopping.Web.Services
 {
@@ -14,7 +15,7 @@ namespace GeekShopping.Web.Services
             _httpClient = httpClient ?? throw new ArgumentException(nameof(ProductService));
         }
 
-        public async Task<ProductModel> CreateProduct(ProductModel model)
+        public async Task<ProductModel> CreateProduct([FromBody] ProductModel model)
         {
             var response = await _httpClient.PostAsJson(BasePath, model);
             if (response.IsSuccessStatusCode)
@@ -23,9 +24,18 @@ namespace GeekShopping.Web.Services
                 throw new Exception("Something went wrong when calling API");
         }
 
+        public async Task<ProductModel> UpdateProduct([FromBody] ProductModel model)
+        {
+            var response = await _httpClient.PutAsJson($"{BasePath}", model);
+            if (response.IsSuccessStatusCode)
+                return await response.ReadContentAs<ProductModel>() ?? new ProductModel();
+            else
+                throw new Exception("Something went wrong when calling API");
+        }
+
         public async Task<bool> DeleteProduct(long id)
         {
-            var response = await _httpClient.GetAsync($"{BasePath}/{id}");
+            var response = await _httpClient.DeleteAsync($"{BasePath}/{id}");
             if (response.IsSuccessStatusCode)
                 return await response.ReadContentAs<bool>();
             else
@@ -42,15 +52,6 @@ namespace GeekShopping.Web.Services
         {
             var response = await _httpClient.GetAsync($"{BasePath}/{id}");
             return await response.ReadContentAs<ProductModel>() ?? new ProductModel();
-        }
-
-        public async Task<ProductModel> UpdateProduct(ProductModel model)
-        {
-            var response = await _httpClient.PutAsJson($"{BasePath}/{model.Id}", model);
-            if (response.IsSuccessStatusCode)
-                return await response.ReadContentAs<ProductModel>() ?? new ProductModel();
-            else
-                throw new Exception("Something went wrong when calling API");
         }
     }
 }
