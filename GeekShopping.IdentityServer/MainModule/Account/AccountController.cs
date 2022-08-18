@@ -1,7 +1,3 @@
-// Copyright (c) Duende Software. All rights reserved.
-// See LICENSE in the project root for license information.
-
-
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +8,6 @@ using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
-using Duende.IdentityServer.Test;
 using Microsoft.AspNetCore.Identity;
 using GeekShopping.IdentityServer.Model;
 using GeekShopping.IdentityServer.MainModule.Account;
@@ -45,9 +40,11 @@ namespace IdentityServerHost.Quickstart.UI
             IAuthenticationSchemeProvider schemeProvider,
             IIdentityProviderStore identityProviderStore,
             IEventService events,
+
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager
+            )
         {
             _interaction = interaction;
             _clientStore = clientStore;
@@ -122,16 +119,14 @@ namespace IdentityServerHost.Quickstart.UI
                     model.Password,
                     model.RememberLogin,
                     lockoutOnFailure: false);
-
-                // validate username/password against in-memory store
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByNameAsync(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(
-                                                user.UserName, 
-                                                user.Id, 
-                                                user.UserName, 
-                                                clientId: context?.Client.ClientId));
+                    await _events.RaiseAsync(
+                        new UserLoginSuccessEvent(user.UserName,
+                            user.Id,
+                            user.UserName,
+                            clientId: context?.Client.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
@@ -182,7 +177,7 @@ namespace IdentityServerHost.Quickstart.UI
                     }
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId:context?.Client.ClientId));
+                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.Client.ClientId));
                 ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
             }
 
@@ -191,7 +186,7 @@ namespace IdentityServerHost.Quickstart.UI
             return View(vm);
         }
 
-        
+
         /// <summary>
         /// Show logout page
         /// </summary>
